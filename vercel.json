@@ -1,15 +1,11 @@
 {
   "version": 2,
-  "buildCommand": "",
+  "buildCommand": "echo 'Static site – no build needed'",
+  "installCommand": "echo 'No install needed'",
   "outputDirectory": ".",
-  "installCommand": "",
   "framework": null,
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ],
+  "cleanUrls": true,
+  "trailingSlash": false,
   "headers": [
     {
       "source": "/(.*)\\.js",
