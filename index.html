@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTrack AI - Workout Logger</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💪</text></svg>">
+    <!-- CSS stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Toast Container for Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- AUTH SCREEN -->
+    <div id="auth-overlay" class="auth-wrapper">
+        <div class="auth-container">
+            <div class="logo-header" style="margin-bottom: 32px; justify-content: center; display: flex; gap: 12px; align-items: center;">
+                <span class="logo-text" style="font-size: 1.5rem;">FitTrack AI</span>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="login-form-section">
+                <h2 class="auth-title">Sign In</h2>
+                <p class="auth-subtitle">Welcome back to your fitness journey</p>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <div class="input-container">
+                            <input type="email" id="login-email" placeholder="name@example.com" required>
+                            <i data-lucide="mail"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <div class="input-container">
+                            <input type="password" id="login-password" placeholder="••••••••" required>
+                            <i data-lucide="lock"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 12px;">
+                        <span>Continue</span>
+                    </button>
+                </form>
+                <p class="auth-toggle">Don't have an account? <span id="toggle-to-register">Sign up</span></p>
+            </div>
+
+            <!-- Registration Form -->
+            <div id="register-form-section" style="display: none;">
+                <h2 class="auth-title">Create Account</h2>
+                <p class="auth-subtitle">Start tracking your progress today</p>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="register-name">Full Name</label>
+                        <div class="input-container">
+                            <input type="text" id="register-name" placeholder="John Doe" required>
+                            <i data-lucide="user"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <div class="input-container">
+                            <input type="email" id="register-email" placeholder="name@example.com" required>
+                            <i data-lucide="mail"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <div class="input-container">
+                            <input type="password" id="register-password" placeholder="••••••••" required>
+                            <i data-lucide="lock"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 12px;">
+                        <span>Create Account</span>
+                    </button>
+                </form>
+                <p class="auth-toggle">Already have an account? <span id="toggle-to-login">Log in</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP STRUCTURE -->
+    <div class="app-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside id="app-sidebar" class="sidebar">
+            <div>
+                <div class="sidebar-brand">
+                    <span class="logo-text">FitTrack AI</span>
+                </div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item active" data-tab="dashboard">
+                        <i data-lucide="layout-dashboard"></i>
+                        <span>Dashboard</span>
+                    </li>
+                    <li class="sidebar-item" data-tab="logger">
+                        <i data-lucide="plus-circle"></i>
+                        <span>Log Workout</span>
+                    </li>
+                    <li class="sidebar-item" data-tab="history">
+                        <i data-lucide="history"></i>
+                        <span>History</span>
+                    </li>
+                    <li class="sidebar-item" data-tab="predictions">
+                        <i data-lucide="trending-up"></i>
+                        <span>AI Predictions</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div id="user-avatar-initial" class="user-avatar">U</div>
+                    <div class="user-info">
+                        <span id="user-display-name" class="user-name">User</span>
+                        <span id="user-display-email" class="user-email">user@email.com</span>
+                    </div>
+                </div>
+                <button id="logout-btn" class="btn-logout">
+                    <i data-lucide="log-out"></i>
+                    <span>Sign Out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Body Content Area -->
+        <main class="main-content">
+            
+            <header class="header-bar">
+                <div class="header-title">
+                    <h1 id="welcome-message">Dashboard</h1>
+                    <p id="today-date-string">Tuesday, June 9, 2026</p>
+                </div>
+                <div class="header-actions">
+                    <button id="hamburger-menu" class="theme-toggle" style="display: none;">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <button id="theme-toggle-btn" class="theme-toggle">
+                        <i data-lucide="sun"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- TAB 1: DASHBOARD VIEW -->
+            <section id="tab-dashboard" class="view-panel active">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <span class="stat-label">Total Workouts</span>
+                        <span id="stat-workouts" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Volume (KG)</span>
+                        <span id="stat-volume" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Peak 1RM</span>
+                        <span id="stat-max-lift" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Active Streak</span>
+                        <span id="stat-streak" class="stat-value">0</span>
+                    </div>
+                </div>
+
+                <div class="content-layout">
+                    <div class="dashboard-card">
+                        <div class="card-title">Training Activity</div>
+                        <div style="height: 300px;">
+                            <canvas id="dashboardChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-title">Recent Activity</div>
+                        <div id="recent-workouts-list" class="history-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: WORKOUT LOGGER VIEW -->
+            <section id="tab-logger" class="view-panel">
+                <div class="dashboard-card" style="max-width: 800px; margin: 0 auto;">
+                    <div class="card-title">
+                        <span>New Workout</span>
+                        <span id="workout-timer" style="font-weight: 400; color: var(--text-secondary);">00:00</span>
+                    </div>
+                    
+                    <div class="workout-meta-form">
+                        <div class="form-group">
+                            <label>Session Name</label>
+                            <input type="text" id="workout-name-input" placeholder="e.g. Push Day">
+                        </div>
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="workout-date-input">
+                        </div>
+                    </div>
+
+                    <div id="workout-exercises">
+                        <!-- Populated dynamically -->
+                    </div>
+
+                    <div style="display: flex; gap: 12px; margin-top: 32px;">
+                        <button id="add-exercise-btn" class="btn-secondary" style="flex: 1; justify-content: center;">Add Exercise</button>
+                        <button id="save-workout-btn" class="btn-primary" style="flex: 1; justify-content: center;">Finish Session</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: WORKOUT HISTORY VIEW -->
+            <section id="tab-history" class="view-panel">
+                <div class="dashboard-card">
+                    <div class="card-title">
+                        <span>History</span>
+                        <input type="text" id="history-search" placeholder="Filter workouts..." style="width: 200px;">
+                    </div>
+                    <div id="history-logs-container" class="history-list">
+                        <!-- History card logs are dynamically generated -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: PREDICTIVE ANALYTICS VIEW -->
+            <section id="tab-predictions" class="view-panel">
+                <div class="dashboard-card">
+                    <div class="card-title">AI Predictions</div>
+
+                    <div style="margin-bottom: 32px;">
+                        <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 8px;">Select Exercise</label>
+                        <select id="predict-exercise-select" style="max-width: 300px;">
+                            <option value="" disabled selected>Select an exercise</option>
+                        </select>
+                    </div>
+
+                    <div id="predictions-dashboard-content" style="display: none;">
+                        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 32px;">
+                            <div style="height: 350px;">
+                                <canvas id="predictionChart"></canvas>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--accent-blue); font-weight: 700; margin-bottom: 8px;">Next Session Target</div>
+                                <div id="predicted-load" style="font-size: 2rem; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 16px;">-- kg x -- Reps</div>
+                                <p id="prediction-explanation" style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px;"></p>
+                                
+                                <div style="display: flex; flex-direction: column; gap: 12px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; border-bottom: 1px solid var(--border-card); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary);">Current 1RM</span>
+                                        <span id="pred-current-1rm" style="font-weight: 600;">-- kg</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; border-bottom: 1px solid var(--border-card); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary);">Target 1RM</span>
+                                        <span id="pred-target-1rm" style="font-weight: 600;">-- kg</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; border-bottom: 1px solid var(--border-card); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary);">4-Week Forecast</span>
+                                        <span id="pred-four-week-forecast" style="font-weight: 600;">-- kg</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="predictions-empty-state" class="empty-state">
+                        <i data-lucide="bar-chart-2" style="width: 48px; height: 48px; margin-bottom: 16px; color: var(--text-muted);"></i>
+                        <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 8px;">Need more data</h3>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); max-width: 400px; margin: 0 auto;">Log at least two sessions for an exercise to see AI-driven strength forecasts and overload targets.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Exercise Selector Modal -->
+    <div id="exercise-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h3 style="font-size: 1.25rem; font-weight: 700;">Select Exercise</h3>
+                <button id="close-exercise-modal-btn" style="background: none; border: none; cursor: pointer; color: var(--text-secondary);"><i data-lucide="x"></i></button>
+            </div>
+            
+            <div style="display: flex; gap: 8px; margin-bottom: 24px;">
+                <input type="text" id="new-exercise-input" placeholder="Add custom exercise...">
+                <button id="create-exercise-btn" class="btn-primary">Add</button>
+            </div>
+
+            <div id="exercise-options-list" style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column;">
+                <!-- List of buttons -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Module -->
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>
