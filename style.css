@@ -742,7 +742,9 @@ select:focus {
 .rest-timer-overlay {
     position: fixed;
     bottom: 24px; left: 50%;
-    transform: translateX(-50%) translateY(120px);
+    transform: translateX(-50%) translateY(200px);
+    opacity: 0;
+    pointer-events: none;
     background: var(--bg-card);
     border: 1px solid var(--border-card);
     border-radius: 16px;
@@ -752,11 +754,13 @@ select:focus {
     gap: 20px;
     z-index: 900;
     box-shadow: var(--shadow-md);
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
     min-width: 300px;
 }
 .rest-timer-overlay.visible {
     transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
 }
 .rest-ring-svg { flex-shrink: 0; }
 .rest-ring-track  { fill: none; stroke: var(--bg-secondary); stroke-width: 5; }
