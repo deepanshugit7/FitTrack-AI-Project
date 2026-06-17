@@ -1,10 +1,11 @@
 import { state, DEFAULT_EXERCISES } from './modules/state.js';
 import { loadDatabase, saveDatabase, saveUserSession, clearSession } from './modules/storage.js';
 import { showToast } from './utils/ui-helpers.js';
-import { initDashboard } from './controllers/dashboard.js';
+import { initDashboard, renderWeeklyGoal } from './controllers/dashboard.js';
 import { initLogger, renderExercises, saveWorkout, renderExerciseOptions } from './controllers/logger.js';
-import { renderHistory, deleteWorkout } from './controllers/history.js';
+import { renderHistory, deleteWorkout, exportCSV } from './controllers/history.js';
 import { initPredictions, updatePanel } from './controllers/predictions.js';
+import { checkAndUnlockBadges } from './controllers/achievements.js';
 
 // Seed data helper
 const getSeedWorkouts = () => {
@@ -15,8 +16,8 @@ const getSeedWorkouts = () => {
         return d.toISOString().split('T')[0];
     };
     return [
-        { id: "w-1", name: "Push Day", date: daysAgo(7), duration: "45 mins", exercises: [{ name: "Bench Press (Barbell)", sets: [{ weight: 60, reps: 8, rpe: 8 }] }] },
-        { id: "w-2", name: "Leg Day", date: daysAgo(4), duration: "50 mins", exercises: [{ name: "Squat (Barbell)", sets: [{ weight: 80, reps: 6, rpe: 8 }] }] }
+        { id: "w-1", name: "Push Day",  date: daysAgo(7), duration: "45 mins", exercises: [{ name: "Barbell Bench Press", sets: [{ weight: 60, reps: 8, rpe: 8 }] }] },
+        { id: "w-2", name: "Leg Day",   date: daysAgo(4), duration: "50 mins", exercises: [{ name: "Barbell Back Squat",  sets: [{ weight: 80, reps: 6, rpe: 8 }] }] }
     ];
 };
 
@@ -46,11 +47,12 @@ function checkActiveSession() {
         state.currentUser = state.users[email];
         document.getElementById("auth-overlay").classList.add("hidden");
         initDashboard();
+        checkAndUnlockBadges();
     }
 }
 
 function setupEventListeners() {
-    // Tab switching
+    // Sidebar Tab switching
     document.querySelectorAll(".sidebar-item").forEach(item => {
         item.addEventListener("click", () => showTab(item.getAttribute("data-tab")));
     });
@@ -95,6 +97,9 @@ function setupEventListeners() {
     document.getElementById("save-workout-btn").addEventListener("click", saveWorkout);
     document.getElementById("history-search").addEventListener("input", (e) => renderHistory(e.target.value));
     document.getElementById("predict-exercise-select").addEventListener("change", updatePanel);
+
+    // Export CSV
+    document.getElementById("export-csv-btn").addEventListener("click", exportCSV);
 }
 
 function toggleTheme() {
@@ -109,9 +114,8 @@ function showTab(tabId) {
     state.activeTab = tabId;
     document.querySelectorAll(".sidebar-item").forEach(i => i.classList.toggle("active", i.getAttribute("data-tab") === tabId));
     document.querySelectorAll(".view-panel").forEach(p => p.classList.toggle("active", p.id === `tab-${tabId}`));
-    
     if (tabId === "dashboard") initDashboard();
-    else if (tabId === "logger") initLogger();
+    else if (tabId === "logger")  initLogger();
     else if (tabId === "history") renderHistory();
     else if (tabId === "predictions") initPredictions();
 }
@@ -134,25 +138,37 @@ function register(e) {
     const name = document.getElementById("register-name").value.trim();
     const email = document.getElementById("register-email").value.trim().toLowerCase();
     const password = document.getElementById("register-password").value;
-    if (state.users[email]) return showToast("User exists", "danger");
-    
-    state.users[email] = { name, password, workouts: getSeedWorkouts(), exercises: [...DEFAULT_EXERCISES] };
+    if (state.users[email]) return showToast("User already exists", "danger");
+
+    state.users[email] = { name, email, password, workouts: getSeedWorkouts(), exercises: [...DEFAULT_EXERCISES], badges: {} };
     saveDatabase();
     state.currentUser = state.users[email];
     localStorage.setItem("fittrack_active_user", email);
     document.getElementById("auth-overlay").classList.add("hidden");
     initDashboard();
     showToast("Account created!", "success");
+    checkAndUnlockBadges();
 }
 
 function logout() {
     clearSession();
+    window.restTimer?.skip();
     document.getElementById("auth-overlay").classList.remove("hidden");
 }
 
 // Global Exports for inline events
 window.app = {
     showTab,
+    setBottomNav(btn) {
+        document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    },
+    setWeeklyGoal() {
+        const val = parseInt(document.getElementById('weekly-goal-input')?.value) || 4;
+        localStorage.setItem('fittrack_weekly_goal', val);
+        renderWeeklyGoal();
+        showToast(`Weekly goal set to ${val} sessions!`, 'success');
+    },
     updateSet: (ei, si, f, v) => {
         if (state.currentWorkout.exercises[ei]?.sets[si]) {
             state.currentWorkout.exercises[ei].sets[si][f] = parseFloat(v) || "";

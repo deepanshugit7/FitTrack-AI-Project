@@ -590,27 +590,346 @@ select:focus {
     }
 }
 
-/* Responsive */
+/* ============================================================
+   SKELETON LOADERS
+   ============================================================ */
+.skeleton {
+    background: linear-gradient(90deg, var(--border-card) 25%, var(--bg-secondary) 50%, var(--border-card) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: var(--radius);
+}
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+.skeleton-text  { height: 14px; margin-bottom: 8px; }
+.skeleton-stat  { height: 36px; width: 60%; margin-top: 8px; }
+.skeleton-card  { height: 120px; }
+
+/* ============================================================
+   CALENDAR HEATMAP
+   ============================================================ */
+.heatmap-wrapper { overflow-x: auto; padding-bottom: 8px; }
+.heatmap-grid {
+    display: grid;
+    grid-template-rows: repeat(7, 14px);
+    grid-auto-flow: column;
+    gap: 3px;
+}
+.heatmap-cell {
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-card);
+    transition: transform 0.15s, opacity 0.15s;
+    cursor: pointer;
+    position: relative;
+}
+.heatmap-cell:hover { transform: scale(1.4); z-index: 2; }
+.heatmap-cell[data-level="1"] { background: #0e4429; border-color: #0e4429; opacity: 0.6; }
+.heatmap-cell[data-level="2"] { background: #006d32; border-color: #006d32; opacity: 0.75; }
+.heatmap-cell[data-level="3"] { background: #26a641; border-color: #26a641; }
+.heatmap-cell[data-level="4"] { background: #39d353; border-color: #39d353; }
+[data-theme="light"] .heatmap-cell[data-level="1"] { background: #9be9a8; border-color: #9be9a8; }
+[data-theme="light"] .heatmap-cell[data-level="2"] { background: #40c463; border-color: #40c463; }
+[data-theme="light"] .heatmap-cell[data-level="3"] { background: #30a14e; border-color: #30a14e; }
+[data-theme="light"] .heatmap-cell[data-level="4"] { background: #216e39; border-color: #216e39; }
+
+.heatmap-tooltip {
+    position: fixed;
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    pointer-events: none;
+    z-index: 999;
+    box-shadow: var(--shadow-md);
+    max-width: 200px;
+    display: none;
+}
+.heatmap-months {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 4px;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    padding-left: 0;
+}
+
+/* ============================================================
+   WEEKLY GOAL RING
+   ============================================================ */
+.goal-ring-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 20px 0;
+}
+.goal-ring-svg { flex-shrink: 0; }
+.goal-ring-track { fill: none; stroke: var(--bg-secondary); stroke-width: 8; }
+.goal-ring-progress {
+    fill: none;
+    stroke: var(--accent-blue);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
+.goal-ring-text { text-anchor: middle; dominant-baseline: middle; }
+.goal-ring-count { font-size: 18px; font-weight: 800; fill: var(--text-primary); }
+.goal-ring-label { font-size: 9px; fill: var(--text-muted); }
+.goal-ring-info { flex: 1; }
+.goal-ring-info h4 { font-size: 0.875rem; font-weight: 600; margin-bottom: 4px; }
+.goal-ring-info p { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 12px; }
+.goal-input-row { display: flex; align-items: center; gap: 8px; }
+.goal-input-row input { width: 60px; text-align: center; padding: 6px 8px; }
+.goal-input-row label { font-size: 0.75rem; color: var(--text-secondary); }
+
+/* ============================================================
+   ACHIEVEMENTS / BADGES
+   ============================================================ */
+.badges-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+}
+.badge-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px;
+    border: 1px solid var(--border-card);
+    border-radius: 10px;
+    width: 80px;
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+}
+.badge-item:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+.badge-item.locked { opacity: 0.3; filter: grayscale(1); }
+.badge-icon { font-size: 1.5rem; }
+.badge-name { font-size: 0.6rem; font-weight: 600; color: var(--text-secondary); line-height: 1.2; }
+.badge-new {
+    position: absolute;
+    top: -6px; right: -6px;
+    background: var(--accent-blue);
+    color: #fff;
+    font-size: 0.5rem;
+    font-weight: 700;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+/* ============================================================
+   CONFETTI
+   ============================================================ */
+.confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* ============================================================
+   REST TIMER
+   ============================================================ */
+.rest-timer-overlay {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 900;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    min-width: 300px;
+}
+.rest-timer-overlay.visible {
+    transform: translateX(-50%) translateY(0);
+}
+.rest-ring-svg { flex-shrink: 0; }
+.rest-ring-track  { fill: none; stroke: var(--bg-secondary); stroke-width: 5; }
+.rest-ring-prog {
+    fill: none;
+    stroke: var(--accent-blue);
+    stroke-width: 5;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset 1s linear, stroke 0.3s;
+}
+.rest-timer-body { flex: 1; }
+.rest-timer-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 2px; }
+.rest-timer-count { font-size: 2rem; font-weight: 800; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.rest-timer-controls { display: flex; gap: 8px; margin-top: 8px; }
+.rest-timer-controls button { font-size: 0.7rem; padding: 4px 10px; }
+.rest-timer-done { color: #39d353 !important; }
+
+/* ============================================================
+   PR BANNER
+   ============================================================ */
+@keyframes prSlideIn {
+    from { opacity: 0; transform: translateY(-20px) scale(0.9); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.pr-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-left: 8px;
+    animation: prSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================================
+   DRAG & DROP
+   ============================================================ */
+.exercise-log-card[draggable="true"] { cursor: grab; }
+.exercise-log-card.dragging {
+    opacity: 0.4;
+    border: 2px dashed var(--accent-blue);
+    transform: scale(0.98);
+}
+.exercise-log-card.drag-over {
+    border-color: var(--accent-blue);
+    background: color-mix(in srgb, var(--accent-blue) 8%, var(--bg-card));
+}
+.drag-handle {
+    cursor: grab;
+    color: var(--text-muted);
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+}
+
+/* ============================================================
+   SPARKLINE TOOLTIP
+   ============================================================ */
+.sparkline-tooltip {
+    position: fixed;
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius);
+    padding: 12px;
+    z-index: 998;
+    pointer-events: none;
+    display: none;
+    box-shadow: var(--shadow-md);
+    min-width: 180px;
+}
+.sparkline-title { font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px; }
+.exercise-name-btn {
+    background: none;
+    border: none;
+    font-weight: 600;
+    font-size: inherit;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+}
+
+/* ============================================================
+   EXPORT BUTTON
+   ============================================================ */
+.btn-export {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-card);
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition);
+}
+.btn-export:hover { border-color: var(--border-hover); color: var(--text-primary); }
+
+/* ============================================================
+   MOBILE BOTTOM NAV
+   ============================================================ */
+.bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg-app);
+    border-top: 1px solid var(--border-card);
+    z-index: 200;
+    padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+}
+.bottom-nav-items {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    background: none;
+    flex: 1;
+}
+.bottom-nav-item.active { color: var(--text-primary); }
+.bottom-nav-item svg { width: 20px; height: 20px; }
+.bottom-nav-item span { font-size: 0.6rem; font-weight: 600; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 @media (max-width: 992px) {
     .sidebar {
         transform: translateX(-100%);
         transition: transform 0.3s;
     }
-
     .sidebar.open {
         transform: translateX(0);
     }
-
     .main-content {
         margin-left: 0;
         padding: 24px;
     }
-
     .dashboard-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-
     .content-layout {
         grid-template-columns: 1fr;
     }
+}
+
+@media (max-width: 768px) {
+    .bottom-nav { display: block; }
+    .sidebar { display: none !important; }
+    .main-content { padding: 16px 16px 80px; }
+    #hamburger-menu { display: none !important; }
+    .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .header-bar { margin-bottom: 24px; }
+    .header-title h1 { font-size: 1.4rem; }
+    .workout-meta-form { grid-template-columns: 1fr; }
+    .rest-timer-overlay { min-width: calc(100vw - 32px); bottom: 80px; }
 }

@@ -63,8 +63,30 @@ function renderChart(name, data) {
         type: 'line',
         data: {
             labels: data.map(p => formatDisplayDate(p.date, true)),
-            datasets: [{ data: data.map(p => Math.round(p.estimated1RM)), borderColor: color, borderWidth: 2, tension: 0, fill: false, pointRadius: 0 }]
+            datasets: [{
+                data: data.map(p => Math.round(p.estimated1RM)),
+                borderColor: '#0070f3',
+                backgroundColor: isDark ? 'rgba(0,112,243,0.12)' : 'rgba(0,112,243,0.08)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 4,
+                pointBackgroundColor: '#0070f3',
+                pointHoverRadius: 7,
+            }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#888' } }, y: { grid: { color: isDark ? '#222' : '#f0f0f0' }, ticks: { font: { size: 10 }, color: '#888' } } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 900, easing: 'easeInOutQuart' },
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: (ctx) => ` ${ctx.parsed.y} kg (1RM)` } }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#888' } },
+                y: { grid: { color: isDark ? '#222' : '#f0f0f0' }, ticks: { font: { size: 10 }, color: '#888' } }
+            }
+        }
     });
 }

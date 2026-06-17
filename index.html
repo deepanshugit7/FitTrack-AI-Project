@@ -19,6 +19,35 @@
     <!-- Toast Container for Notifications -->
     <div id="toast-container" class="toast-container"></div>
 
+    <!-- Heatmap Tooltip -->
+    <div id="heatmap-tooltip" class="heatmap-tooltip"></div>
+
+    <!-- Sparkline Tooltip -->
+    <div id="sparkline-tooltip" class="sparkline-tooltip">
+        <div class="sparkline-title">Last 6 Sessions</div>
+        <canvas id="sparkline-canvas" width="160" height="60"></canvas>
+    </div>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas" class="confetti-canvas" style="display:none;"></canvas>
+
+    <!-- Rest Timer Overlay -->
+    <div id="rest-timer-overlay" class="rest-timer-overlay">
+        <svg class="rest-ring-svg" width="64" height="64" viewBox="0 0 64 64">
+            <circle class="rest-ring-track" cx="32" cy="32" r="27"/>
+            <circle id="rest-ring-prog" class="rest-ring-prog" cx="32" cy="32" r="27"
+                stroke-dasharray="169.6" stroke-dashoffset="0"/>
+        </svg>
+        <div class="rest-timer-body">
+            <div class="rest-timer-label">Rest Timer</div>
+            <div id="rest-timer-count" class="rest-timer-count">60s</div>
+            <div class="rest-timer-controls">
+                <button class="btn-secondary" onclick="window.restTimer.skip()">Skip</button>
+                <button class="btn-secondary" onclick="window.restTimer.addTime(15)">+15s</button>
+            </div>
+        </div>
+    </div>
+
     <!-- AUTH SCREEN -->
     <div id="auth-overlay" class="auth-wrapper">
         <div class="auth-container">
@@ -173,7 +202,7 @@
                 <div class="content-layout">
                     <div class="dashboard-card">
                         <div class="card-title">Training Activity</div>
-                        <div style="height: 300px;">
+                        <div style="height: 260px;">
                             <canvas id="dashboardChart"></canvas>
                         </div>
                     </div>
@@ -183,6 +212,46 @@
                             <!-- Populated dynamically -->
                         </div>
                     </div>
+                </div>
+
+                <!-- Row 2: Heatmap + Weekly Goal -->
+                <div class="content-layout" style="margin-top: 24px;">
+                    <div class="dashboard-card">
+                        <div class="card-title">Training Heatmap <span style="font-size:0.7rem;color:var(--text-muted);font-weight:400;">Last 16 weeks</span></div>
+                        <div class="heatmap-months" id="heatmap-months"></div>
+                        <div class="heatmap-wrapper">
+                            <div class="heatmap-grid" id="heatmap-grid"></div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-title">Weekly Goal</div>
+                        <div class="goal-ring-wrapper">
+                            <svg class="goal-ring-svg" width="90" height="90" viewBox="0 0 90 90">
+                                <circle class="goal-ring-track" cx="45" cy="45" r="38"/>
+                                <circle id="goal-ring-progress" class="goal-ring-progress" cx="45" cy="45" r="38"
+                                    stroke-dasharray="238.76" stroke-dashoffset="238.76"/>
+                                <text class="goal-ring-text" x="45" y="42">
+                                    <tspan id="goal-ring-count" class="goal-ring-count" x="45" dy="0">0</tspan>
+                                </text>
+                                <text class="goal-ring-text goal-ring-label" x="45" y="56">/ <tspan id="goal-ring-total">4</tspan> sessions</text>
+                            </svg>
+                            <div class="goal-ring-info">
+                                <h4>This Week</h4>
+                                <p id="goal-ring-desc">Set your weekly session target below.</p>
+                                <div class="goal-input-row">
+                                    <input type="number" id="weekly-goal-input" min="1" max="14" value="4" style="width:60px;">
+                                    <label>sessions / week</label>
+                                    <button class="btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="window.app.setWeeklyGoal()">Set</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Achievements -->
+                <div class="dashboard-card" style="margin-top: 24px;">
+                    <div class="card-title">Achievements</div>
+                    <div class="badges-grid" id="badges-grid"></div>
                 </div>
             </section>
 
@@ -219,9 +288,14 @@
             <!-- TAB 3: WORKOUT HISTORY VIEW -->
             <section id="tab-history" class="view-panel">
                 <div class="dashboard-card">
-                    <div class="card-title">
+                    <div class="card-title" style="flex-wrap:wrap;gap:12px;">
                         <span>History</span>
-                        <input type="text" id="history-search" placeholder="Filter workouts..." style="width: 200px;">
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="text" id="history-search" placeholder="Filter workouts..." style="width: 180px;">
+                            <button id="export-csv-btn" class="btn-export">
+                                <i data-lucide="download"></i> Export CSV
+                            </button>
+                        </div>
                     </div>
                     <div id="history-logs-container" class="history-list">
                         <!-- History card logs are dynamically generated -->
@@ -301,6 +375,28 @@
             </div>
         </div>
     </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="bottom-nav" id="bottom-nav">
+        <div class="bottom-nav-items">
+            <button class="bottom-nav-item active" data-tab="dashboard" onclick="window.app.showTab('dashboard');window.app.setBottomNav(this)">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Dashboard</span>
+            </button>
+            <button class="bottom-nav-item" data-tab="logger" onclick="window.app.showTab('logger');window.app.setBottomNav(this)">
+                <i data-lucide="plus-circle"></i>
+                <span>Log</span>
+            </button>
+            <button class="bottom-nav-item" data-tab="history" onclick="window.app.showTab('history');window.app.setBottomNav(this)">
+                <i data-lucide="history"></i>
+                <span>History</span>
+            </button>
+            <button class="bottom-nav-item" data-tab="predictions" onclick="window.app.showTab('predictions');window.app.setBottomNav(this)">
+                <i data-lucide="trending-up"></i>
+                <span>AI</span>
+            </button>
+        </div>
+    </nav>
 
     <!-- Main App Module -->
     <script type="module" src="src/main.js"></script>
