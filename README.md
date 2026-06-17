@@ -19,7 +19,7 @@ From there, it's four main areas:
 
 **Dashboard** — Your home base. It shows your last 10 sessions plotted on a chart so you can see your volume trend at a glance, plus a quick list of recent workouts. The streak counter is a nice motivator too.
 
-**Log Workout** — This is where you actually track your training. You give your session a name (like "Push Day"), pick the date, and start adding exercises. There's a built-in library of common lifts, but you can also add your own custom exercises and they'll save to your profile. For each exercise you log sets with weight, reps, and RPE (Rate of Perceived Exertion — basically how hard it felt on a scale of 1–10). A live timer runs in the background so you know how long your session took.
+**Log Workout** — This is where you actually track your training. You give your session a name (like "Push Day"), pick the date, and start adding exercises. There's a built-in library of around 100 equipment-based gym exercises, organized by muscle group (Chest, Back, Shoulders, Legs & Lower Body, Arms, and Core & Abs) and searchable by name so you can find a lift fast. You can also add your own custom exercises and they'll save to your profile. For each exercise you log sets with weight, reps, and RPE (Rate of Perceived Exertion — basically how hard it felt on a scale of 1–10). A live timer runs in the background so you know how long your session took.
 
 **History** — A clean, searchable list of every workout you've ever logged. You can filter by name, delete sessions you don't need, and scroll back through your entire training history.
 
@@ -75,11 +75,12 @@ I tried to keep the code organized in a way that makes sense. It's not a massive
 ```
 FitTrack AI/
 ├── index.html          # The whole app lives in one HTML file
+├── favicon.svg         # App icon shown in the browser tab / address bar
 ├── style.css           # All the styling — dark/light themes, layout, components
 └── src/
     ├── main.js         # Entry point: handles auth, routing between tabs
     ├── modules/
-    │   ├── state.js    # A single source of truth for app state
+    │   ├── state.js    # App state + the grouped exercise catalog
     │   └── storage.js  # All the localStorage read/write logic lives here
     ├── controllers/
     │   ├── dashboard.js    # Stats, streak, activity chart

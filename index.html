@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FitTrack AI - Workout Logger</title>
     <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💪</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="favicon.svg">
     <!-- CSS stylesheet -->
     <link rel="stylesheet" href="style.css">
     <!-- Lucide Icons -->
@@ -286,9 +287,13 @@
                 <button id="close-exercise-modal-btn" style="background: none; border: none; cursor: pointer; color: var(--text-secondary);"><i data-lucide="x"></i></button>
             </div>
             
-            <div style="display: flex; gap: 8px; margin-bottom: 24px;">
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
                 <input type="text" id="new-exercise-input" placeholder="Add custom exercise...">
                 <button id="create-exercise-btn" class="btn-primary">Add</button>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <input type="text" id="exercise-search-input" placeholder="Search exercises..." style="width: 100%;">
             </div>
 
             <div id="exercise-options-list" style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column;">

@@ -72,11 +72,14 @@ function setupEventListeners() {
     // Logger
     document.getElementById("add-exercise-btn").addEventListener("click", () => {
         document.getElementById("exercise-modal").classList.add("active");
+        const search = document.getElementById("exercise-search-input");
+        if (search) search.value = "";
         renderExerciseOptions();
     });
     document.getElementById("close-exercise-modal-btn").addEventListener("click", () => {
         document.getElementById("exercise-modal").classList.remove("active");
     });
+    document.getElementById("exercise-search-input").addEventListener("input", () => renderExerciseOptions());
     document.getElementById("create-exercise-btn").addEventListener("click", () => {
         const input = document.getElementById("new-exercise-input");
         const name = input.value.trim();

@@ -1,4 +1,4 @@
-import { state, DEFAULT_EXERCISES } from '../modules/state.js';
+import { state, DEFAULT_EXERCISES, EXERCISE_CATALOG } from '../modules/state.js';
 import { saveUserSession } from '../modules/storage.js';
 import { showToast } from '../utils/ui-helpers.js';
 
@@ -76,8 +76,29 @@ export function saveWorkout() {
 
 export function renderExerciseOptions() {
     const list = document.getElementById("exercise-options-list");
-    const ex = state.currentUser.exercises || DEFAULT_EXERCISES;
-    list.innerHTML = ex.map(e => `
-        <button class="btn-secondary" style="width:100%;border:none;border-bottom:1px solid var(--border-card);border-radius:0;padding:12px;text-align:left;" onclick="window.app.selectExercise('${e.replace(/'/g, "\\'")}')">${e}</button>
-    `).join('');
+    const searchInput = document.getElementById("exercise-search-input");
+    const query = (searchInput?.value || "").trim().toLowerCase();
+
+    // Build grouped catalog, plus any user-added custom exercises not in the catalog.
+    const groups = { ...EXERCISE_CATALOG };
+    const userExercises = state.currentUser.exercises || DEFAULT_EXERCISES;
+    const customExercises = userExercises.filter(e => !DEFAULT_EXERCISES.includes(e));
+    if (customExercises.length) groups["Custom"] = customExercises;
+
+    const matches = (name) => !query || name.toLowerCase().includes(query);
+
+    const escapeName = (e) => e.replace(/'/g, "\\'");
+
+    const sections = Object.entries(groups).map(([group, exercises]) => {
+        const filtered = exercises.filter(matches);
+        if (!filtered.length) return "";
+        return `
+            <div style="padding:8px 12px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);background:var(--bg-secondary);position:sticky;top:0;">${group}</div>
+            ${filtered.map(e => `
+                <button class="btn-secondary" style="width:100%;border:none;border-bottom:1px solid var(--border-card);border-radius:0;padding:12px;text-align:left;" onclick="window.app.selectExercise('${escapeName(e)}')">${e}</button>
+            `).join('')}
+        `;
+    }).join('');
+
+    list.innerHTML = sections || '<div style="padding:24px;text-align:center;color:var(--text-secondary);font-size:0.875rem;">No exercises match your search.</div>';
 }
